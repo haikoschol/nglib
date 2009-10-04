@@ -41,7 +41,7 @@ from cStringIO import StringIO
 
 import stfl
 
-#from pyPdf import PdfFileReader
+from pyPdf import PdfFileReader
 #from chm import chm
 
 
@@ -175,18 +175,20 @@ def add_pdf(path, database):
     database -- BookDatabase object
     
     """
+    result = False
     try:
         f = open(path, 'rb')
         doc = PdfFileReader(f)
-        doc.decrypt('') # work around strange "file has not been decrypted" bug
         title = doc.getDocumentInfo().title
         author = doc.getDocumentInfo().author
-        database.add(path, title, author)
+        if title: # if title is empty, rather use the filename
+            database.add(path, title, author)
+            result = True
+    except:
+        pass
+    finally:
         f.close()
-        return True
-    except Exception, e:
-        f.close()
-        return False
+    return result
 
 
 def add_chm(path, database):
@@ -260,18 +262,22 @@ def add_books(path, database, add_per_run=5):
     add_per_run -- how many files should be added per call
     
     """
-    added = 0
+    count = 0
     for root, dirs, files in os.walk(path):
         for file in files:
             ext = file.split('.')[-1].lower()
             abspath = os.path.join(root, file)
             if ext in ('pdf', 'chm'):
-                add_file(abspath, database) 
-                added += 1
-            if added == add_per_run:
-                yield added
-                added = 0
-    yield added
+                added = False
+                if ext == 'pdf':
+                    added = add_pdf(abspath, database)
+                if not added:
+                    add_file(abspath, database)
+                count += 1
+            if count == add_per_run:
+                yield count
+                count = 0
+    yield count
 
 
 class ConfigurationStore(object):
@@ -399,12 +405,11 @@ table
         """
         self._db = database
         self._config = config
-        self._form = stfl.create(self.stfl_layout) 
+        self._form = stfl.create(self.stfl_layout)
         self._fill_list(self._db.get_all())
        
     
     def run(self):
-        f = open('msg.log', 'w')
         self._form.set_focus('search')
         while True:
             try:
@@ -519,7 +524,7 @@ def first_run_wizard(config, datadir):
 
 def perform_first_run(datadir, cfgfile):
         try:
-	        os.mkdir(datadir)
+            os.mkdir(datadir)
         except:
             pass # dir might already exist
         config = ConfigurationStore(os.path.join(datadir, cfgfile))

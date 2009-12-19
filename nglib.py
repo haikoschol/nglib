@@ -269,10 +269,10 @@ def add_books(path, database, add_per_run=5):
             abspath = os.path.join(root, file)
             if ext in ('pdf', 'chm'):
                 added = False
-                if ext == 'pdf':
-                    added = add_pdf(abspath, database)
-                if not added:
-                    add_file(abspath, database)
+#                if ext == 'pdf':
+#                    added = add_pdf(abspath, database)
+#                if not added:
+                add_file(abspath, database)
                 count += 1
             if count == add_per_run:
                 yield count

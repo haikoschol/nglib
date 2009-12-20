@@ -6,7 +6,7 @@ Copyright (c) 2009, Haiko Schol alsihad (at) zeropatience (dot) net
 All rights reserved.
 
 @summary: nglib is a simple application for searching an ebook collection.
-@version: 0.0.1
+@version: 0.0.3
 
 Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:

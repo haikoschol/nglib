@@ -4,9 +4,6 @@
 Copyright (c) 2009, Haiko Schol alsihad (at) zeropatience (dot) net
 All rights reserved.
 
-@summary: nglib is a simple application for searching an ebook collection.
-@version: 0.0.1
-
 Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
@@ -35,6 +32,33 @@ For more Information see http://netgarage.org
 
 import os
 import sqlite3
+
+from model.configurationstore import NgLibError
+
+class Book(object):
+    """
+    represents a book
+    """
+    def __init__(self, title, filename, path, author='', pages=0,
+                 tags=[], filetype='pdf', book_id=None):
+        """
+        title - title of the book
+        filename - filename of the book, excluding path
+        path - absolute path to the file, excluding filename
+        author - optional, author of the book
+        pages - optional, number of pages of the book
+        tags - optional, tags describing the book
+        filetype - filetype of the book
+        book_id - optional, unique id
+        """
+        self.title = title
+        self.filename = filename
+        self.path = path
+        self.author = author
+        self.pages = pages
+        self.tags = tags
+        self.filetype = filetype
+        self.book_id = book_id
 
 
 class BookDatabase(object):
@@ -72,7 +96,7 @@ class BookDatabase(object):
 
     def add(self, path, title, author):
         """
-        add a book to the database
+        add an ebook to the database
 
         path - absolute path to the file
         title - title of the book
@@ -131,12 +155,12 @@ class BookDatabase(object):
         term = u'%' + term.decode('utf8') + u'%'
         cursor = self._dbcon.cursor()
         t = (term, term, term)
-        sql = u"""select * from books where (title like ?) or
+        sql = u"""select rowid, * from books where (title like ?) or
                   (author like ?) or (filename like ?)"""
         cursor.execute(sql, t)
         result = cursor.fetchall()
         cursor.close()
-        return result
+        return [self._book_from_query_result(x) for x in result]
 
 
     def get_all(self):
@@ -144,10 +168,24 @@ class BookDatabase(object):
         return all books in the database
         """
         cursor = self._dbcon.cursor()
-        cursor.execute(u"select * from books")
+        cursor.execute(u"select rowid,* from books")
         result = cursor.fetchall()
         cursor.close()
-        return result
+        return [self._book_from_query_result(x) for x in result]
+
+
+    def get_by_id(self, book_id):
+        """
+        fetch data about an ebook by primary key
+
+        book_id - primary key of the book in the db
+        """
+        cursor = self._dbcon.cursor()
+        sql = u"select rowid,* from books where rowid = ?"
+        cursor.execute(sql, book_id)
+        result = cursor.fetchall()
+        cursor.close()
+        return self._book_from_query_result(result)
 
 
     def _create_db(self):
@@ -157,4 +195,9 @@ class BookDatabase(object):
                        """)
         self._dbcon.commit()
         cursor.close()
+
+
+    def _book_from_query_result(self, result):
+        return Book(book_id=result[0], title=result[1], author=result[2],
+                    filename=result[3], path=result[4])
 

@@ -4,9 +4,6 @@
 Copyright (c) 2009, Haiko Schol alsihad (at) zeropatience (dot) net
 All rights reserved.
 
-@summary: nglib is a simple application for searching an ebook collection.
-@version: 0.0.1
-
 Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
@@ -33,6 +30,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 For more Information see http://netgarage.org
 """
 
+import os.path
+from subprocess import Popen
+
+
 class Controller(object):
     """This class provides functionality of the model to the view."""
 
@@ -46,6 +47,8 @@ class Controller(object):
         self._db = database
         self.config = config
         self._views = {}
+        self._pos2id = [] # map a position in the view to a
+                          # primary key in the book db
 
 
     def add_view(self, view, view_init=None):
@@ -71,7 +74,21 @@ class Controller(object):
         """
         return all books in the database
         """
-        return self._db.get_all()
+        all_books = self._db.get_all()
+        self._pos2id = [x.book_id for x in all_books]
+        return all_books
+
+
+    def open_book_at_position(self, pos):
+        """
+        open an ebook file in the appropriate viewer application
+
+        pos - position of the entry in the view
+        """
+        # ***FIXME*** implement KDE, Mac OS X and Windows support
+        book = self._db.get_by_id(self._pos2id[pos])
+        path = os.path.join(book.path, book.filename)
+        Popen(['gnome-open', path], close_fds=True)
 
 
     def run(self):

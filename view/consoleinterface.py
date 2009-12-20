@@ -4,9 +4,6 @@
 Copyright (c) 2009, Haiko Schol alsihad (at) zeropatience (dot) net
 All rights reserved.
 
-@summary: nglib is a simple application for searching an ebook collection.
-@version: 0.0.1
-
 Redistribution and use in source and binary forms, with or without modification,
 are permitted provided that the following conditions are met:
 
@@ -97,7 +94,7 @@ table
             elif e == 'performsearch':
                 self._perform_search(self._form.get('searchterm'))
             elif e == 'openbook':
-                pass # ***FIXME*** open file in external viewer
+                self._ctrl.open_book(self._form.get('listpos'))
             elif e == '^X':
                 self._ctrl.shutdown()
             elif e == '^D':
@@ -114,11 +111,12 @@ table
 
 
     def _fill_list(self, items):
+        items = [x.title for x in items]
         buf = StringIO()
         buf.write('{list')
         count = 0
         for item in items:
-            val = item[0].encode('utf8')
+            val = item.encode('utf8')
             buf.write('{listitem[%d] text:"%s"}' % (count, val))
         buf.write('}')
         self._form.modify('booklist', 'replace_inner', buf.getvalue())

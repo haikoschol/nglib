@@ -90,7 +90,6 @@ table
                 e = self._form.run(0)
             except KeyboardInterrupt:
                 pass
-            f.write('%s\n' % e)
             if e == 'focussearch':
                 self._form.set_focus('search')
             elif e == 'focuslist':

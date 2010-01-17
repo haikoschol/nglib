@@ -1,6 +1,9 @@
 # encoding: utf-8
 
 """
+@summary: database of books
+@author: Haiko Schol <alsihad (at) zeropatience (dot) net>
+
 Copyright (c) 2009, Haiko Schol alsihad (at) zeropatience (dot) net
 All rights reserved.
 
@@ -33,14 +36,13 @@ For more Information see http://netgarage.org
 import os
 import sqlite3
 
-from model.configurationstore import NgLibError
 
 class Book(object):
     """
     represents a book
-    """
+    """   
     def __init__(self, title, filename, path, author='', pages=0,
-                 tags=[], filetype='pdf', book_id=None):
+                 tags=[], filetype='pdf', id=None):
         """
         title - title of the book
         filename - filename of the book, excluding path
@@ -49,7 +51,7 @@ class Book(object):
         pages - optional, number of pages of the book
         tags - optional, tags describing the book
         filetype - filetype of the book
-        book_id - optional, unique id
+        id - optional, unique id
         """
         self.title = title
         self.filename = filename
@@ -58,7 +60,7 @@ class Book(object):
         self.pages = pages
         self.tags = tags
         self.filetype = filetype
-        self.book_id = book_id
+        self.id = id
 
 
 class BookDatabase(object):
@@ -82,6 +84,7 @@ class BookDatabase(object):
         self._dbfile = path
         empty = not os.path.exists(path)
         self._dbcon = db_backend_factory(path)
+        self._dbopen = True
         if empty:
             self._create_db()
 
@@ -89,9 +92,10 @@ class BookDatabase(object):
     def close(self):
         """
         close the underlying sqlite connection
-        (should not be part of the API, RAII would be cool...)
+        does nothing if db is not open
         """
-        self._dbcon.close()
+        if self._dbopen:
+            self._dbcon.close()
 
 
     def add(self, path, title, author):
@@ -198,6 +202,6 @@ class BookDatabase(object):
 
 
     def _book_from_query_result(self, result):
-        return Book(book_id=result[0], title=result[1], author=result[2],
+        return Book(id=result[0], title=result[1], author=result[2],
                     filename=result[3], path=result[4])
 

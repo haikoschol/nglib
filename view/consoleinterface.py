@@ -1,6 +1,9 @@
 # encoding: utf-8
 
 """
+@summary: implements a console-based UI using STFL
+@author: Haiko Schol alsihad (at) zeropatience (dot) net
+
 Copyright (c) 2009, Haiko Schol alsihad (at) zeropatience (dot) net
 All rights reserved.
 

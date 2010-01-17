@@ -1,6 +1,9 @@
 # encoding: utf-8
 
 """
+@summary: this module contains classes for connecting model and view
+@author: Haiko Schol <alsihad (at) zeropatience (dot) net>
+
 Copyright (c) 2009, Haiko Schol alsihad (at) zeropatience (dot) net
 All rights reserved.
 
@@ -33,13 +36,17 @@ For more Information see http://netgarage.org
 import os.path
 from subprocess import Popen
 
+import simplejson
+
 
 class Controller(object):
-    """This class provides functionality of the model to the view."""
+    """
+    This class provides functionality of the model to the view.
+    """
 
     def __init__(self, database, config):
         """
-        TODO: Fill me in
+        create a controller
 
         database - an instance of BookDatabase
         config - an instance of ConfigurationStore
@@ -109,3 +116,49 @@ class Controller(object):
         import sys
         sys.exit(0)
 
+
+class InvalidArgumentError(Exception):
+    """
+    signal wrong and/or missing arguments from a method
+    of an RestApiAdapter object
+    """
+    pass
+
+    
+class RestApiAdapter(object):
+    """
+    puts JSON marshalling around a controller
+    
+    This class is used for the web frontend. Controller methods
+    that are used from the web frontend are wrapped, taking
+    and returning data in JSON format. 
+    """
+    
+    def __init__(self, controller):
+        """
+        create a RestApiAdapter
+        
+        controller - the controller object to wrap
+        """
+        self.controller = controller
+        
+    
+    def search(self, json):
+        """
+        search for a book
+        
+        json - { 'searchterm' : 'cooking for geeks' }
+        """
+        data = simplejson.loads(json)
+        if not 'searchterm' in data:
+            raise InvalidArgumentError('search term missing')
+        
+        books = self.controller.search(data['searchterm'])
+        result = []
+        
+        for book in books:
+            result.append({'id': book.id,
+                           'title': book.title,
+                           'author': book.author,})
+        
+        return simplejson.dumps(result)

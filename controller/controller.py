@@ -82,7 +82,7 @@ class Controller(object):
         return all books in the database
         """
         all_books = self._db.get_all()
-        self._pos2id = [x.book_id for x in all_books]
+        self._pos2id = [x.id for x in all_books]
         return all_books
 
 

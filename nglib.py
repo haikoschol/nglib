@@ -132,6 +132,17 @@ def first_run(datadir, cfgfile):
     return False
 
 
+def get_default_open_cmd():
+    """
+    return absolute path to the binary used for opening files
+    """
+    import platform
+    if 'darwin' in platform.platform().lower():
+        return '/usr/bin/open'
+    else:
+        return '/usr/bin/xdg-open'  # FIXME add windows support
+
+
 def first_run_wizard(config, datadir):
     """
     ask user for configuration settings
@@ -146,29 +157,30 @@ def first_run_wizard(config, datadir):
         print 'eBook library location: ',
         dir = raw_input()
 
+    default_open_cmd = get_default_open_cmd()
     print 'What command should be used to open PDF files?'
-    print 'PDF viewer [/usr/bin/evince]: ',
+    print 'PDF viewer [%s]: ' % default_open_cmd,
     pdfcmd = raw_input()
     if not pdfcmd:
-        pdfcmd = '/usr/bin/evince'
+        pdfcmd = default_open_cmd
     while not os.path.exists(pdfcmd):
         print "That file doesn't exist. Please try again."
-        print 'PDF viewer [/usr/bin/evince]: ',
+        print 'PDF viewer: ',
         pdfcmd = raw_input()
         if not pdfcmd:
-            pdfcmd = '/usr/bin/evince'
+            pdfcmd = default_open_cmd
 
     print 'What command should be used to open CHM files?'
-    print 'CHM viewer [/usr/bin/gnochm]: ',
+    print 'CHM viewer [%s]: ' % default_open_cmd,
     chmcmd = raw_input()
     if not chmcmd:
-        chmcmd = '/usr/bin/gnochm'
+        chmcmd = default_open_cmd
     while not os.path.exists(chmcmd):
         print "That file doesn't exist. Please try again."
-        print 'CHM viewer [/usr/bin/gnochm]: ',
+        print 'CHM viewer: ',
         chmcmd = raw_input()
         if not chmcmd:
-            chmcmd = '/usr/bin/gnochm'
+            chmcmd = default_open_cmd
 
     config.dir = dir
     config.dbfile = os.path.join(datadir, 'books.db')

@@ -74,7 +74,9 @@ class Controller(object):
 
         term - the term to search for
         """
-        return self._db.search(term)
+        results = self._db.search(term)
+        self._pos2id = [x.bid for x in results]
+        return results
 
 
     def get_all(self):
@@ -82,20 +84,26 @@ class Controller(object):
         return all books in the database
         """
         all_books = self._db.get_all()
-        self._pos2id = [x.id for x in all_books]
+        self._pos2id = [x.bid for x in all_books]
         return all_books
 
 
-    def open_book_at_position(self, pos):
+    def open_book(self, pos):
         """
         open an ebook file in the appropriate viewer application
 
         pos - position of the entry in the view
         """
-        # ***FIXME*** implement KDE, Mac OS X and Windows support
-        book = self._db.get_by_id(self._pos2id[pos])
+        # FIXME add windows support, probably with os.startfile()
+        book = self._db.get_by_id(self._pos2id[int(pos)])
         path = os.path.join(book.path, book.filename)
-        Popen(['gnome-open', path], close_fds=True)
+        try:
+            cmd = getattr(self.config, book.filetype+'cmd')
+            argv = cmd.split()
+            argv.append(path)
+            Popen(argv, close_fds=True)
+        except:
+            pass # FIXME show error msg - unsupported filetype or try default cmd
 
 
     def run(self):
@@ -124,41 +132,41 @@ class InvalidArgumentError(Exception):
     """
     pass
 
-    
+
 class RestApiAdapter(object):
     """
     puts JSON marshalling around a controller
-    
+
     This class is used for the web frontend. Controller methods
     that are used from the web frontend are wrapped, taking
-    and returning data in JSON format. 
+    and returning data in JSON format.
     """
-    
+
     def __init__(self, controller):
         """
         create a RestApiAdapter
-        
+
         controller - the controller object to wrap
         """
         self.controller = controller
-        
-    
+
+
     def search(self, json):
         """
         search for a book
-        
+
         json - { 'searchterm' : 'cooking for geeks' }
         """
         data = simplejson.loads(json)
         if not 'searchterm' in data:
             raise InvalidArgumentError('search term missing')
-        
+
         books = self.controller.search(data['searchterm'])
         result = []
-        
+
         for book in books:
             result.append({'id': book.id,
                            'title': book.title,
                            'author': book.author,})
-        
+
         return simplejson.dumps(result)

@@ -40,9 +40,9 @@ import sqlite3
 class Book(object):
     """
     represents a book
-    """   
+    """
     def __init__(self, title, filename, path, author='', pages=0,
-                 tags=[], filetype='pdf', id=None):
+                 tags=[], filetype='pdf', bid=None):
         """
         title - title of the book
         filename - filename of the book, excluding path
@@ -51,7 +51,7 @@ class Book(object):
         pages - optional, number of pages of the book
         tags - optional, tags describing the book
         filetype - filetype of the book
-        id - optional, unique id
+        bid - optional, unique id
         """
         self.title = title
         self.filename = filename
@@ -60,7 +60,7 @@ class Book(object):
         self.pages = pages
         self.tags = tags
         self.filetype = filetype
-        self.id = id
+        self.bid = bid
 
 
 class BookDatabase(object):
@@ -184,12 +184,15 @@ class BookDatabase(object):
 
         book_id - primary key of the book in the db
         """
+        if not isinstance(book_id, str):
+            book_id = str(book_id)
+
         cursor = self._dbcon.cursor()
-        sql = u"select rowid,* from books where rowid = ?"
-        cursor.execute(sql, book_id)
+        sql = u"select rowid,* from books where rowid = %s" % book_id
+        cursor.execute(sql)
         result = cursor.fetchall()
         cursor.close()
-        return self._book_from_query_result(result)
+        return self._book_from_query_result(result[0])
 
 
     def _create_db(self):
@@ -202,6 +205,8 @@ class BookDatabase(object):
 
 
     def _book_from_query_result(self, result):
-        return Book(id=result[0], title=result[1], author=result[2],
-                    filename=result[3], path=result[4])
+        filename = result[3]
+        filetype = filename[filename.rfind('.')+1:]
+        return Book(bid=result[0], title=result[1], author=result[2],
+                    filename=filename, filetype=filetype, path=result[4])
 

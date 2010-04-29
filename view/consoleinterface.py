@@ -64,8 +64,8 @@ table
     bind_down:"** j"
     bind_page_up:"** ^U"
     bind_page_down:"** ^F"
-    bind_home:"** G"
-    bind_end:"** g"
+    bind_home:"** g"
+    bind_end:"** G"
     .colspan:2 .border:rltb
     style_focus:fg=blue
     pos_name[listposname]:

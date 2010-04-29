@@ -33,6 +33,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 For more Information see http://netgarage.org
 """
 
+from __future__ import with_statement
 import os
 
 class NgLibError(Exception):

@@ -98,6 +98,8 @@ def add_books(path, database, add_per_run=5):
     count = 0
     for root, dirs, files in os.walk(path):
         for file in files:
+            if file.startswith('.'):
+                continue
             ext = file.split('.')[-1].lower()
             abspath = os.path.join(root, file)
             if ext in ('pdf', 'chm'):

@@ -36,7 +36,7 @@ For more Information see http://netgarage.org
 import os.path
 from subprocess import Popen
 
-import simplejson
+#import simplejson
 
 
 class Controller(object):
@@ -75,6 +75,7 @@ class Controller(object):
         term - the term to search for
         """
         results = self._db.search(term)
+        results.sort(key=lambda x: x.title)
         self._pos2id = [x.bid for x in results]
         return results
 
@@ -84,6 +85,7 @@ class Controller(object):
         return all books in the database
         """
         all_books = self._db.get_all()
+        all_books.sort(key=lambda x: x.title)
         self._pos2id = [x.bid for x in all_books]
         return all_books
 
@@ -132,41 +134,41 @@ class InvalidArgumentError(Exception):
     """
     pass
 
-
-class RestApiAdapter(object):
-    """
-    puts JSON marshalling around a controller
-
-    This class is used for the web frontend. Controller methods
-    that are used from the web frontend are wrapped, taking
-    and returning data in JSON format.
-    """
-
-    def __init__(self, controller):
-        """
-        create a RestApiAdapter
-
-        controller - the controller object to wrap
-        """
-        self.controller = controller
-
-
-    def search(self, json):
-        """
-        search for a book
-
-        json - { 'searchterm' : 'cooking for geeks' }
-        """
-        data = simplejson.loads(json)
-        if not 'searchterm' in data:
-            raise InvalidArgumentError('search term missing')
-
-        books = self.controller.search(data['searchterm'])
-        result = []
-
-        for book in books:
-            result.append({'id': book.id,
-                           'title': book.title,
-                           'author': book.author,})
-
-        return simplejson.dumps(result)
+# there's nothing to see here, move along
+#class RestApiAdapter(object):
+#    """
+#    puts JSON marshalling around a controller
+#
+#    This class is used for the web frontend. Controller methods
+#    that are used from the web frontend are wrapped, taking
+#    and returning data in JSON format.
+#    """
+#
+#    def __init__(self, controller):
+#        """
+#        create a RestApiAdapter
+#
+#        controller - the controller object to wrap
+#        """
+#        self.controller = controller
+#
+#
+#    def search(self, json):
+#        """
+#        search for a book
+#
+#        json - { 'searchterm' : 'cooking for geeks' }
+#        """
+#        data = simplejson.loads(json)
+#        if not 'searchterm' in data:
+#            raise InvalidArgumentError('search term missing')
+#
+#        books = self.controller.search(data['searchterm'])
+#        result = []
+#
+#        for book in books:
+#            result.append({'id': book.id,
+#                           'title': book.title,
+#                           'author': book.author,})
+#
+#        return simplejson.dumps(result)

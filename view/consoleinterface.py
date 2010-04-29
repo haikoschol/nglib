@@ -60,6 +60,12 @@ table
   !list[booklist]
     on_TAB:focussearch
     on_ENTER:openbook
+    bind_up:"** k"
+    bind_down:"** j"
+    bind_page_up:"** ^U"
+    bind_page_down:"** ^F"
+    bind_home:"** G"
+    bind_end:"** g"
     .colspan:2 .border:rltb
     style_focus:fg=blue
     pos_name[listposname]:
@@ -67,7 +73,7 @@ table
   tablebr
   label
     .colspan:2 .border:rltb .expand:0
-    text:"TAB: Search/List  Ctrl-D: Clear Search  Ctrl-O: Open File  Ctrl-X: Quit"
+    text:"TAB: Search/List  Ctrl-D: Clear Search  Enter: Open File  Ctrl-X: Quit"
   tablebr
 """
 

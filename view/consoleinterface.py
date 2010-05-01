@@ -62,13 +62,13 @@ vbox
     def __init__(self, controller):
         """
         construct and display a reload library dialog
-        
+
         controller - an object which provides methods for reloading the library
         """
         self._ctrl = controller
         self._form = stfl.create(self.stfl_layout)
         self._form.run(1)
-        
+
 
     def run(self):
         """
@@ -76,7 +76,7 @@ vbox
         """
         bookcount = self._ctrl.count_books()
         self._form.set('bookcount', 'Books found: %s' % bookcount)
-        
+
         for num in self._ctrl.reload_library():
             self._form.set('progress', 'Books added: %s' % num)
             self._form.run(1)
@@ -128,13 +128,13 @@ table
     tablebr
     label
         .colspan:2 .tie:c .border:lrb .expand:0
-        text:"ESC - Cancel    Ctrl-U: Reload Library    Ctrl-X - Save settings and close"
+        text:"Ctrl-U - Cancel    Ctrl-R: Reload Library    Ctrl-X - Save settings and close"
 """
 
     def __init__(self, controller):
         """
         construct a settings dialog
-        
+
         controller - an object which provides methods for reading and writing settings
         """
         self._ctrl = controller
@@ -147,7 +147,7 @@ table
         self._form = stfl.create(self.stfl_layout)
         self._update_view(self._form, self._ctrl)
         self._form.set_focus('dir')
-        
+
         while True:
             e = self._form.run(0)
             if e == 'focus_dir':
@@ -156,11 +156,11 @@ table
                 self._form.set_focus('pdfcmd')
             elif e == 'focus_chmcmd':
                 self._form.set_focus('chmcmd')
-            elif e == '^U':
+            elif e == '^R':
                 if self._ctrl.get_setting('dir') != self._form.get('dirtxt'):
                     self._form.set('dirtxt', self._ctrl.get_setting('dir'))
                 self._reload_library(self._ctrl)
-            elif e == 'ESC':
+            elif e == '^U':
                 return
             elif e == '^X':
                 oldlibdir = self._ctrl.get_setting('dir')
@@ -168,14 +168,14 @@ table
                 if oldlibdir != self._ctrl.get_setting('dir'):
                     self._reload_library(self._ctrl)
                 return
-                
+
 
     def _save(self, form, ctrl):
         """
         save the content of dialog widgets to a ConfigurationStore object
         FIXME do sanity checking on the values: check whether dirs and files exist
 
-        form - a form from which the data should be read 
+        form - a form from which the data should be read
         ctrl - a controller object, that provides a set_setting() method
         """
         ctrl.set_setting('dir', form.get('dirtxt'))
@@ -187,7 +187,7 @@ table
     def _update_view(self, form, ctrl):
         """
         put the data from a ConfigurationStore object into dialog widgets
-        
+
         form - a stfl form to which the data should be written
         ctrl - an object which provides a get_setting() method
         """
@@ -199,7 +199,7 @@ table
     def _reload_library(self, ctrl):
         """
         reload the library
-        
+
         ctrl - an object which provides methods for reloading the library
         """
         reloader = ReloadLibraryDialog(self._ctrl)

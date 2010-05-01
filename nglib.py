@@ -43,7 +43,9 @@ from model.configurationstore import ConfigurationStore
 #from controller import count_files
 from controller import add_books
 from controller import Controller
-from view.consoleinterface import ConsoleInterface, SettingsDialog
+from view.consoleinterface import ConsoleInterface
+from view.consoleinterface import SettingsDialog
+from view.consoleinterface import ReloadLibraryDialog
 
 
 
@@ -151,21 +153,14 @@ if __name__ == '__main__':
     datadir = os.path.join(os.path.expanduser('~'), '.nglib')
     cfgfile = 'nglibrc'
 
-#    if first_run(datadir, cfgfile):
-#        db, config = perform_first_run(datadir, cfgfile)
-#    else:
-#        config = ConfigurationStore(os.path.join(datadir, cfgfile))
-#        config.load()
-#        db = BookDatabase(config.dbfile)
-#
-#    controller = Controller(db, config)
-#    ui = ConsoleInterface(controller)
-#    controller.add_view(ui, ui.run)
-#    controller.run()
+    if first_run(datadir, cfgfile):
+        db, config = perform_first_run(datadir, cfgfile)
+    else:
+        config = ConfigurationStore(os.path.join(datadir, cfgfile))
+        config.load()
+        db = BookDatabase(config.dbfile)
 
-    config = ConfigurationStore(os.path.join(datadir, cfgfile))
-    config.load()
-    db = BookDatabase(config.dbfile)
     controller = Controller(db, config)
-    settings = SettingsDialog(controller)
-    settings.show()
+    ui = ConsoleInterface(controller)
+    controller.add_view(ui, ui.run)
+    controller.run()

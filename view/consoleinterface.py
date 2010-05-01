@@ -43,18 +43,21 @@ class ReloadLibraryDialog(object):
     """
     stfl_layout = """
 vbox
-    .border:lrtb
-    label
-        .border:b .tie:c
-        text:"Reloading Library..."
-    label
-        .expand:h .tie:c
-        text[bookcount]:""
-    label
-        .expand:h .tie:c
-        text[progress]:""
+    modal:1
+    table
+        .tie:c
+        label
+            .colspan:2 .expand:0 .tie:c .border:lrtb
+            text:"Reloading Library..."
+        tablebr
+        label
+            .colspan:2 .expand:0 .tie:c .border:lrtb
+            text[bookcount]:"Books found:"
+        tablebr
+        label
+            .colspan:2 .expand:0 .tie:c .border:lrtb
+            text[progress]:"Books added:"
 """
-
 
     def __init__(self, controller):
         """
@@ -64,6 +67,7 @@ vbox
         """
         self._ctrl = controller
         self._form = stfl.create(self.stfl_layout)
+        self._form.run(1)
         
 
     def run(self):
@@ -72,8 +76,10 @@ vbox
         """
         bookcount = self._ctrl.count_books()
         self._form.set('bookcount', 'Books found: %s' % bookcount)
+        
         for num in self._ctrl.reload_library():
             self._form.set('progress', 'Books added: %s' % num)
+            self._form.run(1)
 
 
 class SettingsDialog(object):
@@ -82,6 +88,7 @@ class SettingsDialog(object):
     """
     stfl_layout = """
 table
+    modal:1
     label
         .colspan:2 .expand:0 .tie:c .border:lrtb
         text:"Settings"
@@ -142,10 +149,7 @@ table
         self._form.set_focus('dir')
         
         while True:
-            #try:
             e = self._form.run(0)
-            #except KeyboardInterrupt:
-            #    pass
             if e == 'focus_dir':
                 self._form.set_focus('dir')
             elif e == 'focus_pdfcmd':
@@ -153,15 +157,16 @@ table
             elif e == 'focus_chmcmd':
                 self._form.set_focus('chmcmd')
             elif e == '^U':
-                reloader = ReloadLibraryDialog(self._ctrl)
-                reloader.run()
+                if self._ctrl.get_setting('dir') != self._form.get('dirtxt'):
+                    self._form.set('dirtxt', self._ctrl.get_setting('dir'))
+                self._reload_library(self._ctrl)
             elif e == 'ESC':
                 return
             elif e == '^X':
-                if (self._ctrl.get_setting('dir') != self._form.get('dirtxt')):
-                    reloader = ReloadLibraryDialog(self._ctrl)
-                    reloader.run()
+                oldlibdir = self._ctrl.get_setting('dir')
                 self._save(self._form, self._ctrl)
+                if oldlibdir != self._ctrl.get_setting('dir'):
+                    self._reload_library(self._ctrl)
                 return
                 
 
@@ -173,7 +178,6 @@ table
         form - a form from which the data should be read 
         ctrl - a controller object, that provides a set_setting() method
         """
-        #import pydevd;pydevd.settrace()
         ctrl.set_setting('dir', form.get('dirtxt'))
         ctrl.set_setting('pdfcmd', form.get('pdfcmdtxt'))
         ctrl.set_setting('chmcmd', form.get('chmcmdtxt'))
@@ -190,6 +194,16 @@ table
         form.set('dirtxt', ctrl.get_setting('dir'))
         form.set('pdfcmdtxt', ctrl.get_setting('pdfcmd'))
         form.set('chmcmdtxt', ctrl.get_setting('chmcmd'))
+
+
+    def _reload_library(self, ctrl):
+        """
+        reload the library
+        
+        ctrl - an object which provides methods for reloading the library
+        """
+        reloader = ReloadLibraryDialog(self._ctrl)
+        reloader.run()
 
 
 class ConsoleInterface(object):
@@ -228,9 +242,12 @@ table
     pos[listpos]:0
   tablebr
   label
-    .colspan:2 .border:rltb .expand:0
-    text:"TAB: Search/List  Ctrl-D: Clear Search  Enter: Open File  Ctrl-S: Settings Ctrl-X: Quit"
+    .colspan:2 .border:rlt .expand:0 .tie:c
+    text:"TAB: Search/List    Ctrl-D: Clear Search    Enter: Open File"
   tablebr
+  label
+    .colspan:2 .border:rlb .expand:0 .tie:c
+    text:"Ctrl-P: Settings    Ctrl-X: Quit"
 """
 
     def __init__(self, controller):
@@ -264,8 +281,10 @@ table
                 self._ctrl.shutdown()
             elif e == '^D':
                 self._clear_search_results()
-            elif e == '^S':
-                pass # FIXME
+            elif e == '^P':
+                settings = SettingsDialog(self._ctrl)
+                settings.show()
+                self._fill_list(self._ctrl.get_all())
 
 
     def _perform_search(self, term):

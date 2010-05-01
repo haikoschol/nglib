@@ -40,7 +40,7 @@ import os
 
 from model.bookdatabase import BookDatabase
 from model.configurationstore import ConfigurationStore
-#from controller import count_files
+from controller import count_files
 from controller import add_books
 from controller import Controller
 from view.consoleinterface import ConsoleInterface

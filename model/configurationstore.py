@@ -40,7 +40,6 @@ class NgLibError(Exception):
     pass
 
 
-# ***FIXME*** replace with ConfigParser from stdlib
 class ConfigurationStore(object):
     """
     This class represents configuration data that can be stored

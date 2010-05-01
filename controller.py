@@ -37,6 +37,73 @@ import os.path
 from subprocess import Popen
 
 #import simplejson
+from model.configurationstore import NgLibError
+
+
+def add_file(path, database):
+    """
+    don't try to extract any metadata, just use the filename
+    (slightly prettyfied) as title and a blank string as author.
+    ignore all files with no pdf or chm extension.
+
+    path - absolute path to a file
+    database - BookDatabase object
+
+    """
+    filename = os.path.basename(path)
+    ext = filename.split('.')[-1].lower()
+    if ext not in ('pdf', 'chm'):
+        return False
+
+    pos = filename.rfind(ext)
+    title = filename[:pos]
+    title = title.replace('.', ' ').strip()
+    author = ''
+    database.add(path, title, author)
+    return True
+
+
+def count_files(path, extensions=('pdf', 'chm')):
+    """
+    return the number of files with certain extensions in a directory tree.
+
+    path - root of the directory tree
+    extensions - iterable of file extensions to count
+
+    """
+    count = 0
+    for _, _, files in os.walk(path):
+        for file in files:
+            ext = file.split('.')[-1].lower()
+            if ext in extensions:
+                count += 1
+    return count
+
+
+def add_books(path, database, add_per_run=5):
+    """
+    generator that adds all pdf and chm files in the directory tree
+    "path" to the database. yields numbers denoting how many files
+    have been added so far.
+
+    path - absolute path to the directory to walk
+    database - BookDatabase object
+    add_per_run - how many files should be added per call
+
+    """
+    count = 0
+    for root, dirs, files in os.walk(path):
+        for file in files:
+            if file.startswith('.'):
+                continue
+            ext = file.split('.')[-1].lower()
+            abspath = os.path.join(root, file)
+            if ext in ('pdf', 'chm'):
+                add_file(abspath, database)
+                count += 1
+                if count % add_per_run == 0:
+                    yield count
+    yield count
 
 
 class Controller(object):
@@ -127,14 +194,59 @@ class Controller(object):
         sys.exit(0)
 
 
-class InvalidArgumentError(Exception):
-    """
-    signal wrong and/or missing arguments from a method
-    of an RestApiAdapter object
-    """
-    pass
+    def get_setting(self, setting):
+        """
+        return the value of a configuration setting
+        
+        setting - the name of the setting to return
+        """
+        if not hasattr(self.config, setting):
+            raise NgLibError('There is no setting called "%s".' % setting)
+        return getattr(self.config, setting)
+
+
+    def set_setting(self, setting, value):
+        """
+        change the value of a configuration setting
+        
+        setting - the name of the setting to change
+        value - the new value of the setting
+        """
+        if not hasattr(self.config, setting):
+            raise NgLibError('There is no setting called "%s".' % setting)
+        setattr(self.config, setting, value)
+
+
+    def write_settings(self):
+        """
+        write configuration settings to disk
+        """
+        self.config.save()
+
+
+    def count_books(self):
+        """
+        return the number of PDF and CHM files in the configured library directory
+        """
+        return count_files(self.config.dir)
+
+
+    def reload_library(self):
+        """
+        (re)build a BookDatabase with all files from the configured library directory
+        """
+        self._db.clear()
+        return add_books(self.config.dir, self._db)
+
 
 # there's nothing to see here, move along
+#class InvalidArgumentError(Exception):
+#    """
+#    signal wrong and/or missing arguments from a method
+#    of an RestApiAdapter object
+#    """
+#    pass
+
 #class RestApiAdapter(object):
 #    """
 #    puts JSON marshalling around a controller

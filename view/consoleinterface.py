@@ -36,6 +36,162 @@ For more Information see http://netgarage.org
 from cStringIO import StringIO
 import stfl
 
+
+class ReloadLibraryDialog(object):
+    """
+    display progress on reloading the library
+    """
+    stfl_layout = """
+vbox
+    .border:lrtb
+    label
+        .border:b .tie:c
+        text:"Reloading Library..."
+    label
+        .expand:h .tie:c
+        text[bookcount]:""
+    label
+        .expand:h .tie:c
+        text[progress]:""
+"""
+
+
+    def __init__(self, controller):
+        """
+        construct and display a reload library dialog
+        
+        controller - an object which provides methods for reloading the library
+        """
+        self._ctrl = controller
+        self._form = stfl.create(self.stfl_layout)
+        
+
+    def run(self):
+        """
+        perform the reload and display progress
+        """
+        bookcount = self._ctrl.count_books()
+        self._form.set('bookcount', 'Books found: %s' % bookcount)
+        for num in self._ctrl.reload_library():
+            self._form.set('progress', 'Books added: %s' % num)
+
+
+class SettingsDialog(object):
+    """
+    provide a dialog for editing configuration settings
+    """
+    stfl_layout = """
+table
+    label
+        .colspan:2 .expand:0 .tie:c .border:lrtb
+        text:"Settings"
+    tablebr
+    label
+        .border:lb .expand:0
+        text:"eBook Library Location:"
+    input[dir]
+        .border:rb .expand:h
+        style_normal:fg=blue,bg=black
+        style_focus:fg=white,bg=black
+        text[dirtxt]:
+        on_DOWN:focus_pdfcmd
+        on_TAB:focus_pdfcmd
+    tablebr
+    label
+        .border:lb .expand:0
+        text:"Open PDF files with:"
+    input[pdfcmd]
+        .border:rb .expand:h
+        style_normal:fg=blue,bg=black
+        style_focus:fg=white,bg=black
+        text[pdfcmdtxt]:
+        on_UP:focus_dir
+        on_DOWN:focus_chmcmd
+        on_TAB:focus_chmcmd
+    tablebr
+    label
+        .border:lb .expand:0
+        text:"Open CHM files with:"
+    input[chmcmd]
+        .border:rb .expand:h
+        style_normal:fg=blue,bg=black
+        style_focus:fg=white,bg=black
+        text[chmcmdtxt]:
+        on_UP:focus_pdfcmd
+    tablebr
+    label
+        .colspan:2 .tie:c .border:lrb .expand:0
+        text:"ESC - Cancel    Ctrl-U: Reload Library    Ctrl-X - Save settings and close"
+"""
+
+    def __init__(self, controller):
+        """
+        construct a settings dialog
+        
+        controller - an object which provides methods for reading and writing settings
+        """
+        self._ctrl = controller
+
+
+    def show(self):
+        """
+        display the dialog and run the event loop
+        """
+        self._form = stfl.create(self.stfl_layout)
+        self._update_view(self._form, self._ctrl)
+        self._form.set_focus('dir')
+        
+        while True:
+            #try:
+            e = self._form.run(0)
+            #except KeyboardInterrupt:
+            #    pass
+            if e == 'focus_dir':
+                self._form.set_focus('dir')
+            elif e == 'focus_pdfcmd':
+                self._form.set_focus('pdfcmd')
+            elif e == 'focus_chmcmd':
+                self._form.set_focus('chmcmd')
+            elif e == '^U':
+                reloader = ReloadLibraryDialog(self._ctrl)
+                reloader.run()
+            elif e == 'ESC':
+                return
+            elif e == '^X':
+                if (self._ctrl.get_setting('dir') != self._form.get('dirtxt')):
+                    reloader = ReloadLibraryDialog(self._ctrl)
+                    reloader.run()
+                self._save(self._form, self._ctrl)
+                return
+                
+
+    def _save(self, form, ctrl):
+        """
+        save the content of dialog widgets to a ConfigurationStore object
+        FIXME do sanity checking on the values: check whether dirs and files exist
+
+        form - a form from which the data should be read 
+        ctrl - a controller object, that provides a set_setting() method
+        """
+        #import pydevd;pydevd.settrace()
+        ctrl.set_setting('dir', form.get('dirtxt'))
+        ctrl.set_setting('pdfcmd', form.get('pdfcmdtxt'))
+        ctrl.set_setting('chmcmd', form.get('chmcmdtxt'))
+        ctrl.write_settings()
+
+
+    def _update_view(self, form, ctrl):
+        """
+        put the data from a ConfigurationStore object into dialog widgets
+        
+        form - a stfl form to which the data should be written
+        ctrl - an object which provides a get_setting() method
+        """
+        form.set('dirtxt', ctrl.get_setting('dir'))
+        form.set('pdfcmdtxt', ctrl.get_setting('pdfcmd'))
+        form.set('chmcmdtxt', ctrl.get_setting('chmcmd'))
+
+
 class ConsoleInterface(object):
     """
     display a console user interface using STFL
@@ -53,8 +209,8 @@ table
     on_TAB:focuslist
     on_ENTER:performsearch
     .border:rtb .expand:h
-    style_normal:attr=underline
-    style_focus:fg=blue,attr=underline
+    style_normal:fg=blue,bg=black
+    style_focus:fg=white,bg=black
     text[searchterm]:
   tablebr
   !list[booklist]
@@ -73,7 +229,7 @@ table
   tablebr
   label
     .colspan:2 .border:rltb .expand:0
-    text:"TAB: Search/List  Ctrl-D: Clear Search  Enter: Open File  Ctrl-X: Quit"
+    text:"TAB: Search/List  Ctrl-D: Clear Search  Enter: Open File  Ctrl-S: Settings Ctrl-X: Quit"
   tablebr
 """
 
@@ -108,6 +264,8 @@ table
                 self._ctrl.shutdown()
             elif e == '^D':
                 self._clear_search_results()
+            elif e == '^S':
+                pass # FIXME
 
 
     def _perform_search(self, term):

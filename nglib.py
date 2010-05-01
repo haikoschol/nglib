@@ -40,74 +40,11 @@ import os
 
 from model.bookdatabase import BookDatabase
 from model.configurationstore import ConfigurationStore
-from controller.controller import Controller
-from view.consoleinterface import ConsoleInterface
+#from controller import count_files
+from controller import add_books
+from controller import Controller
+from view.consoleinterface import ConsoleInterface, SettingsDialog
 
-
-def add_file(path, database):
-    """
-    don't try to extract any metadata, just use the filename
-    (slightly prettyfied) as title and a blank string as author.
-    ignore all files with no pdf or chm extension.
-
-    path - absolute path to a file
-    database - BookDatabase object
-
-    """
-    filename = os.path.basename(path)
-    ext = filename.split('.')[-1].lower()
-    if ext not in ('pdf', 'chm'):
-        return False
-
-    pos = filename.rfind(ext)
-    title = filename[:pos]
-    title = title.replace('.', ' ').strip()
-    author = ''
-    database.add(path, title, author)
-    return True
-
-
-def count_files(path, extensions=('pdf', 'chm')):
-    """
-    return the number of files with certain extensions in a directory tree.
-
-    path - root of the directory tree
-    extensions - iterable of file extensions to count
-
-    """
-    count = 0
-    for _, _, files in os.walk(path):
-        for file in files:
-            ext = file.split('.')[-1].lower()
-            if ext in extensions:
-                count += 1
-    return count
-
-
-def add_books(path, database, add_per_run=5):
-    """
-    generator that adds all pdf and chm files in the directory tree
-    "path" to the database. yields numbers denoting how many files
-    have been added so far.
-
-    path - absolute path to the directory to walk
-    database - BookDatabase object
-    add_per_run - how many files should be added per call
-
-    """
-    count = 0
-    for root, dirs, files in os.walk(path):
-        for file in files:
-            if file.startswith('.'):
-                continue
-            ext = file.split('.')[-1].lower()
-            abspath = os.path.join(root, file)
-            if ext in ('pdf', 'chm'):
-                add_file(abspath, database)
-                count += 1
-                if count % add_per_run == 0:
-                    yield count
-    yield count
 
 
 def first_run(datadir, cfgfile):
@@ -214,15 +151,21 @@ if __name__ == '__main__':
     datadir = os.path.join(os.path.expanduser('~'), '.nglib')
     cfgfile = 'nglibrc'
 
-    if first_run(datadir, cfgfile):
-        db, config = perform_first_run(datadir, cfgfile)
-    else:
-        config = ConfigurationStore(os.path.join(datadir, cfgfile))
-        config.load()
-        db = BookDatabase(config.dbfile)
+#    if first_run(datadir, cfgfile):
+#        db, config = perform_first_run(datadir, cfgfile)
+#    else:
+#        config = ConfigurationStore(os.path.join(datadir, cfgfile))
+#        config.load()
+#        db = BookDatabase(config.dbfile)
+#
+#    controller = Controller(db, config)
+#    ui = ConsoleInterface(controller)
+#    controller.add_view(ui, ui.run)
+#    controller.run()
 
+    config = ConfigurationStore(os.path.join(datadir, cfgfile))
+    config.load()
+    db = BookDatabase(config.dbfile)
     controller = Controller(db, config)
-    ui = ConsoleInterface(controller)
-    controller.add_view(ui, ui.run)
-    controller.run()
-
+    settings = SettingsDialog(controller)
+    settings.show()

@@ -4,7 +4,7 @@
 @summary: this module contains classes for connecting model and view
 @author: Haiko Schol <alsihad (at) zeropatience (dot) net>
 
-Copyright (c) 2009, Haiko Schol alsihad (at) zeropatience (dot) net
+Copyright (c) 2009, 2010 Haiko Schol alsihad (at) zeropatience (dot) net
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without modification,
@@ -37,7 +37,7 @@ import os.path
 from subprocess import Popen
 
 #import simplejson
-from model.configurationstore import NgLibError
+from nglib.model.configurationstore import NgLibError
 
 
 def add_file(path, database):

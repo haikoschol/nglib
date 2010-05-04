@@ -3,3 +3,6 @@ syntax: glob
 *.swp
 *~
 
+.project
+.pydevproject
+.settings

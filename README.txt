@@ -1,3 +1,7 @@
+======
+nglib
+======
+
 nglib is a simple application that puts PDF and CHM files in a directory
 hierarchy into a SQLite database for faster searching. Originally the plan
 was to extract metadata like title and author from these files, but this turned
@@ -5,17 +9,16 @@ out to be not as straight-forward as expected. So for now, only filenames
 are used. Titles are generated from filenames by stripping the file extension
 and replacing "." with spaces.
 
-Make sure you have the python bindings for the STFL[1] library installed
-(python-stfl on Debian/Ubuntu).
+Make sure you have the python bindings for the `STFL <http://www.clifford.at/stfl/>`_
+library installed (``python-stfl`` on Debian/Ubuntu).
 
 On first run, the program will ask you for some configuration settings:
 
-- the directory where you store your PDF and CHM collection
-- a command that should be used for displaying PDF files
-- a command that should be used for displaying CHM files
+* the directory where you store your PDF and CHM collection
 
-Those settings will be written to ~/.nglib/nglibrc
+* a command that should be used for displaying PDF files
 
+* a command that should be used for displaying CHM files
 
-[1] http://www.clifford.at/stfl/
+Those settings will be written to ``~/.nglib/nglibrc``
 

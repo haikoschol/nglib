@@ -37,6 +37,81 @@ from cStringIO import StringIO
 import stfl
 
 
+class ProgressBar(object):
+    """
+    Display a progress bar on the console.
+    """
+
+    def __init__(self, total, initial=0.0, block='=', cur_block='>',
+                 start_delim='[', end_delim=']', width=52):
+        """
+        Create a progress bar.
+
+        total - total amount of progress to be made
+        initial - initial amount of progress
+        block - character used for the "filled" part of the bar
+        cur_block - character used for the current block
+        start_delim - character used for the left border
+        end_delim - character used for the right border
+        width - width of the progress bar in characters, incl. delimiters
+        """
+        self.total = total
+        self.current = float(initial)
+        self.block = block
+        self.cur_block = cur_block
+        self.start_delim = start_delim
+        self.end_delim = end_delim
+        self.width = width
+        self._net_width = width - len(start_delim) + len(end_delim)
+        self._done = False
+
+
+    def show(self):
+        """
+        Display the progress bar.
+
+        newline_when_done - print a newline at 100% progress
+        """
+        if self._done:
+            return
+
+        blocks = self._get_blocks()
+        empty = (self._net_width - len(blocks)) * ' '
+        bar = '\r%s%s%s%s' % (self.start_delim, blocks, empty, self.end_delim)
+        print bar,
+
+        if self.current == self.total:
+            self._done = True
+
+        import sys
+        sys.stdout.flush()
+
+
+    def progress(self, amount=1):
+        """
+        Increase the progress by the given amount and update the progress
+        bar on the screen.
+        """
+        if (amount > self.total) or (amount + self.current > self.total):
+            self.current = self.total
+        elif amount > 0:
+            self.current = self.current + amount
+
+        self.show()
+
+
+    def _get_blocks(self):
+        """
+        Figure out how many blocks to display for the current amount.
+        """
+        if self.current == self.total:
+            return self._net_width * self.block
+
+        percent = self.current / self.total * 100
+        scaled = int(percent / (100.0 / self._net_width))
+        return '%s%s' % (scaled * self.block, self.cur_block)
+
+
 class ReloadLibraryDialog(object):
     """
     display progress on reloading the library
@@ -127,8 +202,12 @@ table
         on_UP:focus_pdfcmd
     tablebr
     label
+        .colspan:2 .tie:c .border:lr .expand:0
+        text:"Ctrl-U - Cancel    Ctrl-R: Reload Library"
+    tablebr
+    label
         .colspan:2 .tie:c .border:lrb .expand:0
-        text:"Ctrl-U - Cancel    Ctrl-R: Reload Library    Ctrl-X - Save settings and close"
+        text:"Ctrl-X - Save settings and close"
 """
 
     def __init__(self, controller):
@@ -247,7 +326,7 @@ table
   tablebr
   label
     .colspan:2 .border:rlb .expand:0 .tie:c
-    text:"Ctrl-P: Settings    Ctrl-X: Quit"
+    text:"Ctrl-R: Reveal File    Ctrl-P: Settings    Ctrl-X: Quit"
 """
 
     def __init__(self, controller):
@@ -285,6 +364,8 @@ table
                 settings = SettingsDialog(self._ctrl)
                 settings.show()
                 self._fill_list(self._ctrl.get_all())
+            elif e == '^R':
+                self._ctrl.show_book(self._form.get('listpos'))
 
 
     def _perform_search(self, term):

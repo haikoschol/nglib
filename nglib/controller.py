@@ -91,19 +91,25 @@ def add_books(path, database, add_per_run=5):
     add_per_run - how many files should be added per call
 
     """
-    count = 0
+    subtotal = 0
+    added = 0
     for root, dirs, files in os.walk(path):
+        added = 0
         for file in files:
             if file.startswith('.'):
                 continue
             ext = file.split('.')[-1].lower()
             abspath = os.path.join(root, file)
+
             if ext in ('pdf', 'chm'):
                 add_file(abspath, database)
-                count += 1
-                if count % add_per_run == 0:
-                    yield count
-    yield count
+                added += 1
+
+                if added % add_per_run == 0:
+                    subtotal += added
+                    yield added, subtotal
+
+    yield added, subtotal+added
 
 
 class Controller(object):
@@ -173,6 +179,20 @@ class Controller(object):
             Popen(argv, close_fds=True)
         except:
             pass # FIXME show error msg - unsupported filetype or try default cmd
+
+    
+    def show_book(self, pos):
+        """
+        show an ebook file in a file manager
+        """
+        book = self._db.get_by_id(self._pos2id[int(pos)])
+        path = os.path.join(book.path, book.filename)
+        try:
+            argv = self.config.showcmd.split()
+            argv.append(path)
+            Popen(argv, close_fds=True)
+        except:
+            pass # FIXME show error msg
 
 
     def run(self):

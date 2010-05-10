@@ -36,6 +36,7 @@ For more Information see http://netgarage.org
 from __future__ import with_statement
 import os
 
+
 class NgLibError(Exception):
     pass
 
@@ -55,7 +56,7 @@ class ConfigurationStore(object):
         config_file - absolute path to the configuration file
         """
         self._config_file = config_file
-        self.config_values = ['dir', 'dbfile', 'pdfcmd', 'chmcmd']
+        self.config_values = ['dir', 'dbfile', 'pdfcmd', 'chmcmd', 'showcmd']
         for value in self.config_values:
             setattr(self, value, None)
 

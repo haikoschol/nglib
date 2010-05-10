@@ -3,7 +3,7 @@
 
 """
 @summary: nglib is a simple application for searching an ebook collection.
-@version: 0.1
+@version: 0.2
 @author: Haiko Schol <alsihad (at) zeropatience (dot) net>
 
 Copyright (c) 2009, 2010 Haiko Schol alsihad (at) zeropatience (dot) net
@@ -43,6 +43,7 @@ from nglib.model.configurationstore import ConfigurationStore
 from nglib.controller import count_files
 from nglib.controller import add_books
 from nglib.controller import Controller
+from nglib.view.consoleinterface import ProgressBar
 from nglib.view.consoleinterface import ConsoleInterface
 from nglib.view.consoleinterface import SettingsDialog
 from nglib.view.consoleinterface import ReloadLibraryDialog
@@ -84,12 +85,22 @@ def get_default_open_cmd():
         return '/usr/bin/xdg-open'  # FIXME add windows support
 
 
-def first_run_wizard(config, datadir):
+def get_default_show_cmd():
     """
-    ask user for configuration settings
+    return absolute path to the command used to reveal files in a
+    file manager
     """
-    print 'It seems like this is the first time you run nglib.'
-    print 'Let me ask you some questions real quick...'
+    import platform
+    if 'darwin' in platform.platform().lower():
+        return '/usr/local/bin/reveal'
+    else:
+        return '/usr/bin/nautilus'
+
+
+def get_library_dir():
+    """
+    ask user for the location of the ebook library
+    """
     print 'Please tell me the absolute path to your eBook collection.'
     print 'eBook library location: ',
     dir = raw_input()
@@ -97,36 +108,82 @@ def first_run_wizard(config, datadir):
         print "That directory doesn't exist. Please try again."
         print 'eBook library location: ',
         dir = raw_input()
+    return dir
 
+        
+def get_pdfcmd():
+    """
+    ask user for the command to open pdf files
+    """
     default_open_cmd = get_default_open_cmd()
     print 'What command should be used to open PDF files?'
     print 'PDF viewer [%s]: ' % default_open_cmd,
     pdfcmd = raw_input()
     if not pdfcmd:
         pdfcmd = default_open_cmd
-    while not os.path.exists(pdfcmd):
+    while not os.path.exists(pdfcmd.split()[0]):
         print "That file doesn't exist. Please try again."
         print 'PDF viewer: ',
         pdfcmd = raw_input()
         if not pdfcmd:
             pdfcmd = default_open_cmd
+    return pdfcmd
 
+
+def get_chmcmd():
+    """
+    ask user for the command to open chm files
+    """
+    default_open_cmd = get_default_open_cmd()
     print 'What command should be used to open CHM files?'
     print 'CHM viewer [%s]: ' % default_open_cmd,
     chmcmd = raw_input()
     if not chmcmd:
         chmcmd = default_open_cmd
-    while not os.path.exists(chmcmd):
+    while not os.path.exists(chmcmd.split()[0]):
         print "That file doesn't exist. Please try again."
         print 'CHM viewer: ',
         chmcmd = raw_input()
         if not chmcmd:
             chmcmd = default_open_cmd
+    return chmcmd
 
+
+def get_showcmd():
+    """
+    ask user for the command to reveal files in a file manager
+    """
+    default_show_cmd = get_default_show_cmd()
+    print 'What command should be used to reveal files in a file manager?'
+    print 'reveal file command [%s]: ' % default_show_cmd,
+    showcmd = raw_input()
+    if not showcmd:
+        showcmd = default_show_cmd
+    while not os.path.exists(showcmd.split()[0]):
+        print "That file doesn't exist. Please try again."
+        print 'reveal file command: ',
+        showcmd = raw_input()
+        if not showcmd:
+            showcmd = default_show_cmd
+    return showcmd
+
+
+def first_run_wizard(config, datadir):
+    """
+    ask user for configuration settings
+    """
+    print 'It seems like this is the first time you run nglib.'
+    print 'Let me ask you some questions real quick...'
+    dir = get_library_dir()
+    pdfcmd = get_pdfcmd()
+    chmcmd = get_chmcmd()
+    showcmd = get_showcmd()
+    
     config.dir = dir
     config.dbfile = os.path.join(datadir, 'books.db')
     config.pdfcmd = pdfcmd
     config.chmcmd = chmcmd
+    config.showcmd = showcmd
 
 
 def perform_first_run(datadir, cfgfile):
@@ -142,10 +199,10 @@ def perform_first_run(datadir, cfgfile):
         count = count_files(config.dir)
         print '%d files found' % count
         print 'adding files to database %s' % config.dbfile
-        added = 0
-        for num in add_books(config.dir, db):
-            print 'added %d of %d files' % (num, count)
-        print 'done'
+        progbar = ProgressBar(count)
+        for added, _ in add_books(config.dir, db):
+            progbar.progress(added)
+        print '\n'
         return db, config
 
 

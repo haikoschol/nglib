@@ -1,1 +1,7 @@
+v0.2, 10-05-2010 -- additional command line tools for searching and updating the
+                    library
+                    show file in file manager feature
+                    pretty text-based progress bar in first-run wizard
+                    small bugfixes
+                    
 v0.1, 04-05-2010 -- initial release.

@@ -63,6 +63,10 @@ class Book(object):
         self.bid = bid
 
 
+    def __str__(self):
+        return self.title
+
+
 class BookDatabase(object):
     """
     thin wrapper around sqlite for adding, removing and searching

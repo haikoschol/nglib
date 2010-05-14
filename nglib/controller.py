@@ -35,6 +35,7 @@ For more Information see http://netgarage.org
 
 import os.path
 from subprocess import Popen
+from subprocess import STDOUT
 
 #import simplejson
 from nglib.model.configurationstore import NgLibError
@@ -177,7 +178,7 @@ class Controller(object):
             cmd = getattr(self.config, book.filetype+'cmd')
             argv = cmd.split()
             argv.append(path)
-            Popen(argv, close_fds=True)
+            Popen(argv, stdout=open('/dev/null', 'w'), stderr=STDOUT)
         except:
             pass # FIXME show error msg - unsupported filetype or try default cmd
 
@@ -197,7 +198,7 @@ class Controller(object):
         try:
             argv = self.config.showcmd.split()
             argv.append(path)
-            Popen(argv, close_fds=True)
+            Popen(argv, stdout=open('/dev/null', 'w'), stderr=STDOUT)
         except:
             pass # FIXME show error msg
 

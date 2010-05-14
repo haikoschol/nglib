@@ -20,5 +20,28 @@ On first run, the program will ask you for some configuration settings:
 
 * a command that should be used for displaying CHM files
 
+* a command that should be used for "revealing" files (only shows the directory on linux/gnome)
+
 Those settings will be written to ``~/.nglib/nglibrc``
+
+Currently, there are three commands:
+
+    * nglib: run nglib with a STFL based interface
+    * nglib-update: update (actually reload) your library from the command line
+    * nglib-search: search your library from the command line
+
+
+Installation
+============
+
+To install, extract the release tarball and inside the directory run ``sudo python setup.py install``. This will install all command line scripts to ``/usr/local/bin/``.
+
+If you want high-tech features like "uninstall" and you are using a debian based distribution, you can also create a debian package this way:
+
+    * install `stdeb <http://pypi.python.org/pypi/stdeb>`_
+    * run ``py2dsc nglib-<version>.tar.gz``
+    * inside directory ``deb_dist/nglib-<version>`` run ``dpkg-buildpackage -rfakeroot -uc -us``
+    * run ``sudo dpkg -i ../python-nglib_<some crap>.deb``
+
+To uninstall, run ``sudo aptitude remove python-nglib``.
 

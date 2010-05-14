@@ -153,7 +153,7 @@ vbox
         self._form.set('bookcount', 'Books found: %i' % bookcount)
 
         for num in self._ctrl.reload_library():
-            self._form.set('progress', 'Books added: %i' % num[0])
+            self._form.set('progress', 'Books added: %i' % num[1])
             self._form.run(1)
 
 

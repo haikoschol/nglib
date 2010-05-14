@@ -94,7 +94,6 @@ def add_books(path, database, add_per_run=5):
     subtotal = 0
     added = 0
     for root, dirs, files in os.walk(path):
-        added = 0
         for file in files:
             if file.startswith('.'):
                 continue
@@ -107,9 +106,11 @@ def add_books(path, database, add_per_run=5):
 
                 if added % add_per_run == 0:
                     subtotal += added
-                    yield added, subtotal
+                    tmp = added
+                    added = 0
+                    yield tmp, subtotal
 
-    yield added, subtotal+added
+    yield added, subtotal
 
 
 class Controller(object):

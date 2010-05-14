@@ -180,13 +180,19 @@ class Controller(object):
         except:
             pass # FIXME show error msg - unsupported filetype or try default cmd
 
-    
+
     def show_book(self, pos):
         """
         show an ebook file in a file manager
         """
         book = self._db.get_by_id(self._pos2id[int(pos)])
-        path = os.path.join(book.path, book.filename)
+
+        import platform
+        if 'darwin' in platform.platform().lower():
+            path = os.path.join(book.path, book.filename)
+        else:
+            path = book.path
+
         try:
             argv = self.config.showcmd.split()
             argv.append(path)
@@ -217,7 +223,7 @@ class Controller(object):
     def get_setting(self, setting):
         """
         return the value of a configuration setting
-        
+
         setting - the name of the setting to return
         """
         if not hasattr(self.config, setting):
@@ -228,7 +234,7 @@ class Controller(object):
     def set_setting(self, setting, value):
         """
         change the value of a configuration setting
-        
+
         setting - the name of the setting to change
         value - the new value of the setting
         """

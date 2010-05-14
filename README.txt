@@ -35,5 +35,5 @@ Currently, there are three commands:
 Installation
 ============
 
-To install run the script install.sh. To uninstall, run uninstall.sh
+To install run the script install.sh. To uninstall, run uninstall.sh.
 

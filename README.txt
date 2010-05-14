@@ -35,12 +35,6 @@ Currently, there are three commands:
 Installation
 ============
 
-The tarball is a standard Python distutils package that can be installed by running
-sudo python setup.py install
-
-This will install all command line scripts to /usr/local/bin/.
-
-There is no way to uninstall a distutils package and the location where the files
-will be installed is platform dependent. So just delete /usr/local/bin/nglib*.
-If you want to get rid of the configuration and database to, delete ~/.nglib as well.
+To install run the script install.sh. This will install all command line scripts
+to /usr/local/bin. To uninstall, run uninstall.sh
 

@@ -150,10 +150,10 @@ vbox
         perform the reload and display progress
         """
         bookcount = self._ctrl.count_books()
-        self._form.set('bookcount', 'Books found: %s' % bookcount)
+        self._form.set('bookcount', 'Books found: %i' % bookcount)
 
         for num in self._ctrl.reload_library():
-            self._form.set('progress', 'Books added: %s' % num)
+            self._form.set('progress', 'Books added: %i' % num[0])
             self._form.run(1)
 
 

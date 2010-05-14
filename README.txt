@@ -35,6 +35,5 @@ Currently, there are three commands:
 Installation
 ============
 
-To install run the script install.sh. This will install all command line scripts
-to /usr/local/bin. To uninstall, run uninstall.sh
+To install run the script install.sh. To uninstall, run uninstall.sh
 

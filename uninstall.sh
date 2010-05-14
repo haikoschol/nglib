@@ -1,5 +1,5 @@
 #!/bin/sh
 
-cat files.txt | xargs rm -rf
-rm -rf ~/.nglib
+sudo cat files.txt | xargs rm -rf
+sudo rm -rf ~/.nglib
 

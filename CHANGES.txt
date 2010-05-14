@@ -3,6 +3,6 @@ v0.2, 14-05-2010 -- additional command line tools for searching and updating the
                     pretty text-based progress bar in first-run wizard
                     fixed layout of the main dialog
                     fixed regression when reloading the library from the settings dialog
-                    added install instructions to README.txt
+                    added install and uninstall scripts
                     
 v0.1, 04-05-2010 -- initial release.

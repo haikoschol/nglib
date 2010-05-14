@@ -7,7 +7,7 @@ if 'darwin' in platform().lower():
 
 setup(
         name='nglib',
-        version='0.2rc2',
+        version='0.2',
         author='Haiko Schol',
         author_email='alsihad@zeropatience.net',
         packages=['nglib', 'nglib.model', 'nglib.view', 'nglib.tests'],

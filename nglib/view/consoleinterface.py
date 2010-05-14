@@ -200,6 +200,18 @@ table
         style_focus:fg=white,bg=black
         text[chmcmdtxt]:
         on_UP:focus_pdfcmd
+        on_DOWN:focus_showcmd
+        on_TAB:focus_showcmd
+    tablebr
+    label
+        .border:lb .expand:0
+        text:"Reveal files in:"
+    input[showcmd]
+        .border:rb .expand:h
+        style_normal:fg=blue,bg=black
+        style_focus:fg=white,bg=black
+        text[showcmdtxt]:
+        on_UP:focus_chmcmd
     tablebr
     label
         .colspan:2 .tie:c .border:lr .expand:0
@@ -235,6 +247,8 @@ table
                 self._form.set_focus('pdfcmd')
             elif e == 'focus_chmcmd':
                 self._form.set_focus('chmcmd')
+            elif e == 'focus_showcmd':
+                self._form.set_focus('showcmd')
             elif e == '^R':
                 if self._ctrl.get_setting('dir') != self._form.get('dirtxt'):
                     self._form.set('dirtxt', self._ctrl.get_setting('dir'))
@@ -260,6 +274,7 @@ table
         ctrl.set_setting('dir', form.get('dirtxt'))
         ctrl.set_setting('pdfcmd', form.get('pdfcmdtxt'))
         ctrl.set_setting('chmcmd', form.get('chmcmdtxt'))
+        ctrl.set_setting('showcmd', form.get('showcmdtxt'))
         ctrl.write_settings()
 
 
@@ -273,6 +288,7 @@ table
         form.set('dirtxt', ctrl.get_setting('dir'))
         form.set('pdfcmdtxt', ctrl.get_setting('pdfcmd'))
         form.set('chmcmdtxt', ctrl.get_setting('chmcmd'))
+        form.set('showcmdtxt', ctrl.get_setting('showcmd'))
 
 
     def _reload_library(self, ctrl):

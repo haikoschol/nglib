@@ -9,8 +9,9 @@ out to be not as straight-forward as expected. So for now, only filenames
 are used. Titles are generated from filenames by stripping the file extension
 and replacing "." with spaces.
 
-Make sure you have the python bindings for the `STFL <http://www.clifford.at/stfl/>`_
-library installed (``python-stfl`` on Debian/Ubuntu).
+Make sure you have the Python bindings for the STFL library installed.
+On Debian/Ubuntu grab the package python-stfl. Otherwise get the source from
+http://www.clifford.at/stfl/.
 
 On first run, the program will ask you for some configuration settings:
 
@@ -22,7 +23,7 @@ On first run, the program will ask you for some configuration settings:
 
 * a command that should be used for "revealing" files (only shows the directory on linux/gnome)
 
-Those settings will be written to ``~/.nglib/nglibrc``
+Those settings will be written to ~/.nglib/nglibrc
 
 Currently, there are three commands:
 
@@ -34,14 +35,12 @@ Currently, there are three commands:
 Installation
 ============
 
-To install, extract the release tarball and inside the directory run ``sudo python setup.py install``. This will install all command line scripts to ``/usr/local/bin/``.
+The tarball is a standard Python distutils package that can be installed by running
+sudo python setup.py install
 
-If you want high-tech features like "uninstall" and you are using a debian based distribution, you can also create a debian package this way:
+This will install all command line scripts to /usr/local/bin/.
 
-    * install `stdeb <http://pypi.python.org/pypi/stdeb>`_
-    * run ``py2dsc nglib-<version>.tar.gz``
-    * inside directory ``deb_dist/nglib-<version>`` run ``dpkg-buildpackage -rfakeroot -uc -us``
-    * run ``sudo dpkg -i ../python-nglib_<some crap>.deb``
-
-To uninstall, run ``sudo aptitude remove python-nglib``.
+There is no way to uninstall a distutils package and the location where the files
+will be installed is platform dependent. So just delete /usr/local/bin/nglib*.
+If you want to get rid of the configuration and database to, delete ~/.nglib as well.
 

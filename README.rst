@@ -27,9 +27,11 @@ Those settings will be written to ~/.nglib/nglibrc
 
 Currently, there are three commands:
 
-    * nglib: run nglib with a STFL based interface
-    * nglib-update: update (actually reload) your library from the command line
-    * nglib-search: search your library from the command line
+* nglib: run nglib with a STFL based interface
+
+* nglib-update: update (actually reload) your library from the command line
+
+* nglib-search: search your library from the command line
 
 
 Installation

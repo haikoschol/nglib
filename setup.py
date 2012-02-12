@@ -15,6 +15,6 @@ setup(
         url='http://code.google.com/p/nglib',
         license='LICENSE.txt',
         description='Simple tool for searching your eBook collection.',
-        long_description=open('README.txt').read(),
+        long_description=open('README.rst').read(),
 )
 
